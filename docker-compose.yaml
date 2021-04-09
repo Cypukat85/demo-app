@@ -10,6 +10,10 @@ services:
       - POSTGRES_DB=demo
     ports:
       - 5432:5432
+  migration:
+    image: demo-app
+    container_name: demo-migration
+    command: alembic upgrade head
   redis:
     image: "redis:alpine"
     restart: always
@@ -36,3 +40,4 @@ services:
     depends_on:
       - db
       - redis
+      - migration
