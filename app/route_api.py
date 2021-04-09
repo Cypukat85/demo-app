@@ -27,6 +27,8 @@ async def get_items(
     q = items.select()
     result = await db.fetch(query=q)
     items_list = [Item(**item) for item in result]
+    for item in items_list:
+        await request.app.extra['cache'].set_cache_item(item=item)
     return items_list
 
 
@@ -68,14 +70,18 @@ async def get_item(
         db: SAConnection = Depends(get_postgresql_connection)
 ):
     """Get item by id"""
+    cached_item = await request.app.extra['cache'].get_cache_item(item_id=item_id)
+    if cached_item:
+        return cached_item
     if db is None:
         response.status_code = 503
         return ResponseModel(result='Service unavailable')
     q = items.select().where(items.c.id == item_id)
     item = await db.fetchrow(query=q)
-    print(item)
     if item is not None:
-        return Item(**item)
+        item = Item(**item)
+        await request.app.extra['cache'].set_cache_item(item=item)
+        return item
     else:
         response.status_code = 404
 
@@ -96,6 +102,7 @@ async def update_item(
         db: SAConnection = Depends(get_postgresql_connection)
 ):
     """Update item"""
+    await request.app.extra['cache'].drop_cache_item(item_id=item_id)
     if db is None:
         response.status_code = 503
         return ResponseModel(result='Service unavailable')
@@ -116,6 +123,7 @@ async def delete_item(
         db: SAConnection = Depends(get_postgresql_connection)
 ):
     """Delete item"""
+    await request.app.extra['cache'].drop_cache_item
     if db is None:
         response.status_code = 503
         return ResponseModel(result='Service unavailable')
