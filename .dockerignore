@@ -1,0 +1,10 @@
+/.idea/
+/.vscode/
+/.git/
+/venv/
+/tmp/
+.DS_Store
+env.sh
+Makefile
+Dockerfile
+docker-compose.yaml

@@ -1,0 +1,14 @@
+/__pycache__/
+*.pyc
+/.idea/
+/.vscode/
+/venv/
+config.yaml
+.DS_Store
+.python-version
+/tmp/
+*.key
+*.pem
+/env.sh
+*.sql
+env.txt

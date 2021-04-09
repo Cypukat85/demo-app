@@ -1,0 +1,38 @@
+version: "3"
+services:
+  db:
+    image: postgres:10-alpine
+    restart: always
+    container_name: demo-postgres
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=dbpass
+      - POSTGRES_DB=demo
+    ports:
+      - 5432:5432
+  redis:
+    image: "redis:alpine"
+    restart: always
+    container_name: demo-redis
+    command: redis-server --requirepass redispass
+    ports:
+      - "6379:6379"
+  app:
+    image: "demo-app"
+    restart: always
+    build: .
+    container_name: demo-app
+    environment:
+      - PG_DSN=postgres://dbuser:dbpass@db:5432/demo
+      - PG_MIN=1
+      - PG_MAX=5 
+      - RED_DSN=redis://redis:6379/
+      - RED_DB=1
+      - RED_PASSWORD=redispass
+      - RED_MIN=1
+      - RED_MAX=5
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+      - redis
